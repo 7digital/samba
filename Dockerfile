@@ -1,9 +1,7 @@
 FROM debian:jessie
-MAINTAINER David Personette <dperson@gmail.com>
 
 # Install samba
 RUN export DEBIAN_FRONTEND='noninteractive' && \
-    useradd -c 'ROBBYH' -M -r -u 1001 robert && \
     apt-get update -qq && \
     apt-get install -qqy --no-install-recommends samba \
                 $(apt-get -s dist-upgrade|awk '/^Inst.*ecurity/ {print $2}') &&\
@@ -14,8 +12,6 @@ RUN export DEBIAN_FRONTEND='noninteractive' && \
     echo '   directory mask = 0775' >>/etc/samba/smb.conf && \
     echo '   force create mode = 0664' >>/etc/samba/smb.conf && \
     echo '   force directory mode = 0775' >>/etc/samba/smb.conf && \
-    echo '   force user = robert' >>/etc/samba/smb.conf && \
-    echo '   force group = robert' >>/etc/samba/smb.conf && \
     echo '   load printers = no' >>/etc/samba/smb.conf && \
     echo '   printing = bsd' >>/etc/samba/smb.conf && \
     echo '   printcap name = /dev/null' >>/etc/samba/smb.conf && \

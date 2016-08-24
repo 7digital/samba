@@ -53,13 +53,14 @@ perms() { local i file=/etc/samba/smb.conf
 # Return: result
 share() { local share="$1" path="$2" browsable=${3:-yes} ro=${4:-yes} \
                 guest=${5:-yes} users=${6:-""} admins=${7:-""} \
-                file=/etc/samba/smb.conf
+                file=/etc/samba/smb.conf force_user=${8:-root}
     sed -i "/\\[$share\\]/,/^\$/d" $file
     echo "[$share]" >>$file
     echo "   path = $path" >>$file
     echo "   browsable = $browsable" >>$file
     echo "   read only = $ro" >>$file
     echo "   guest ok = $guest" >>$file
+    echo "   force user = $force_user" >>$file
     [[ ${users:-""} && ! ${users:-""} =~ all ]] &&
         echo "   valid users = $(tr ',' ' ' <<< $users)" >>$file
     [[ ${admins:-""} && ! ${admins:-""} =~ none ]] &&
@@ -87,11 +88,10 @@ timezone() { local timezone="${1:-EST5EDT}"
 ### user: add a user
 # Arguments:
 #   name) for user
-#   password) for user
+#   id) for user
 # Return: user added to container
-user() { local name="${1}" passwd="${2}"
-    useradd "$name" -M
-    echo "$passwd" | tee - | smbpasswd -s -a "$name"
+user() { local name="${1}" id="${2}"
+    useradd -M -r -u $id "$name"
 }
 
 ### workgroup: set the workgroup
@@ -114,7 +114,7 @@ Options (fields in '[]' are optional, '<>' are required):
                 required arg: \"<path>\" - full file path in container
     -n          Start the 'nmbd' daemon to advertise the shares
     -p          Set ownership and permissions on the shares
-    -s \"<name;/path>[;browsable;readonly;guest;users]\" Configure a share
+    -s \"<name;/path>[;browsable;readonly;guest;users;admins;force_user]\" Configure a share
                 required arg: \"<name>;<comment>;</path>\"
                 <name> is how it's called for clients
                 <path> path to share
@@ -124,12 +124,13 @@ Options (fields in '[]' are optional, '<>' are required):
                 [guest] allowed default:'yes' or 'no'
                 [users] allowed default:'all' or list of allowed users
                 [admins] allowed default:'none' or list of admin users
+				[force_user] default:'root'
     -t \"\"       Configure timezone
                 possible arg: \"[timezone]\" - zoneinfo timezone for container
-    -u \"<username;password>\"       Add a user
-                required arg: \"<username>;<passwd>\"
+    -u \"<username;uid>\"       Add a user
+                required arg: \"<username>;<uid>\"
                 <username> for user
-                <password> for user
+                <uid> for user
     -w \"<workgroup>\"       Configure the workgroup (domain) samba should use
                 required arg: \"<workgroup>\"
                 <workgroup> for samba
