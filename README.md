@@ -1,8 +1,8 @@
 [![logo](https://raw.githubusercontent.com/7digital/samba/master/logo.jpg)](https://www.samba.org)
 
-# Samba
+# What is this?
 
-Samba docker container
+Samba docker container. We've modified it from the original (by [dperson](https://github.com/dperson/samba/)) to allow us to force a particular user for a share.
 
 # What is Samba?
 
